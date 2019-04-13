@@ -4,7 +4,6 @@ import (
 	"image"
 	"image/draw"
 	"io/ioutil"
-	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -149,7 +148,7 @@ func (f *Font) RenderTextBox(dst draw.Image, x, y int, width, height int, center
 	}
 
 	if centeredY {
-		y -= int(math.Round(float64(len(lines)) * float64(font.Font.Common.LineHeight) / 2))
+		y -= len(lines) * font.Font.Common.LineHeight / 2
 	}
 
 	for _, line := range lines {
@@ -165,7 +164,7 @@ func (f *Font) RenderTextBox(dst draw.Image, x, y int, width, height int, center
 				}
 				xWidth += font.Chars[int(r)].XAdvanced
 			}
-			x1 -= int(math.Round(float64(xWidth) / 2))
+			x1 -= xWidth / 2
 		}
 		f.RenderString(dst, x1, y, line)
 		y += f.Font.Common.LineHeight
