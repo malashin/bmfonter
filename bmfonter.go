@@ -114,7 +114,8 @@ func (f *Font) RenderTextBox(dst draw.Image, x, y int, width, height int, center
 	for len(words) > 0 {
 		word, words = words[0], words[1:]
 		wordWidth := 0
-		for _, char := range word {
+
+		for i, char := range word {
 			for _, sf := range f.Subfonts {
 				if _, ok := sf.Chars[int(char)]; ok {
 					font = sf
@@ -122,12 +123,20 @@ func (f *Font) RenderTextBox(dst draw.Image, x, y int, width, height int, center
 			}
 			wordWidth += font.Chars[int(char)].XAdvanced
 			font = *f
+			if wordWidth > width && i > 0 {
+				words = append([]string{word[i-1:]}, words...)
+				word = word[:i-1]
+				wordWidth -= font.Chars[int(char)].XAdvanced
+				break
+			}
 		}
-		// Add spacebar width if this is not the first or last word.
-		if lineWidth != 0 || len(words) > 0 {
+
+		// Add spacebar width if this is not the first or last word and spacebar fits into the line.
+		if (lineWidth != 0 || len(words) > 0) && wordWidth+font.Chars[int(32)].XAdvanced <= width {
 			wordWidth += font.Chars[int(32)].XAdvanced
 		}
-		if lineWidth+wordWidth < width {
+
+		if lineWidth+wordWidth <= width {
 			lineWidth += wordWidth
 			if len(line) > 0 {
 				line += " "
